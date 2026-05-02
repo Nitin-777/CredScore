@@ -65,13 +65,3 @@ async function retrieveEvidence(claim) {
 
 module.exports = { retrieveEvidence };
 
-module.exports = { retrieveEvidence };
-
-async function test() {
-  const evidence = await retrieveEvidence(
-    "The Eiffel Tower is located in Paris France"
-  );
-  console.log('Evidence found:');
-  console.log(evidence.substring(0, 200));
-}
-test();
