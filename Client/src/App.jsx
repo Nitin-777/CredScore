@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Zap } from "lucide-react"
+import  logo  from "./assets/logo.png"
 import axios from 'axios';
 import Home from './pages/Home';
 import History from './pages/History';
@@ -36,7 +36,8 @@ export default function App() {
       {/* navbar */}
       <nav className="navbar">
         <span className="navbar-brand">
-             <Zap /> CREDSCORE
+             <img src={ logo } alt=""   alt="CredScore Logo"
+             className="w-16 h-15"/> CREDSCORE
         </span>
         <button
           className={`navbar-link ${page === 'home' ? 'active' : ''}`}
