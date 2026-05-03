@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { Zap } from "lucide-react"
+import axios from 'axios';
 import Home from './pages/Home';
 import History from './pages/History';
 import ResultPanel from './components/ResultPanel';
@@ -6,10 +8,21 @@ import ResultPanel from './components/ResultPanel';
 export default function App() {
   const [page, setPage] = useState('home');
   const [selectedEvaluation, setSelectedEvaluation] = useState(null);
+  const [loadingDetail, setLoadingDetail] = useState(false);
 
-  const handleSelectEvaluation = (evaluation) => {
-    setSelectedEvaluation(evaluation);
+  const handleSelectEvaluation = async (item) => {
+    setLoadingDetail(true);
     setPage('detail');
+    try {
+      // fetch full evaluation with claims
+      const res = await axios.get(
+        `${import.meta.env.VITE_API_URL}/api/history/${item._id}`
+      );
+      setSelectedEvaluation(res.data);
+    } catch (err) {
+      console.error('Failed to fetch evaluation details');
+    }
+    setLoadingDetail(false);
   };
 
   const navigate = (newPage) => {
@@ -23,7 +36,7 @@ export default function App() {
       {/* navbar */}
       <nav className="navbar">
         <span className="navbar-brand">
-          ⚡ CREDSCORE
+             <Zap /> CREDSCORE
         </span>
         <button
           className={`navbar-link ${page === 'home' ? 'active' : ''}`}
@@ -38,7 +51,6 @@ export default function App() {
           History
         </button>
 
-        {/* right side tag */}
         <div style={{ marginLeft: 'auto' }}>
           <span style={{
             fontSize: '0.7rem',
@@ -65,8 +77,9 @@ export default function App() {
           </div>
         )}
 
-        {page === 'detail' && selectedEvaluation && (
+        {page === 'detail' && (
           <div className="page-enter">
+            {/* back button */}
             <button
               onClick={() => setPage('history')}
               style={{
@@ -80,18 +93,94 @@ export default function App() {
                 alignItems: 'center',
                 gap: '0.375rem',
                 padding: 0,
-                fontWeight: 500,
-                transition: 'var(--transition-fast)'
+                fontWeight: 500
               }}
             >
               ← Back to History
             </button>
-            <ResultPanel result={{
-              score: selectedEvaluation.credibilityScore,
-              riskLevel: selectedEvaluation.riskLevel,
-              breakdown: selectedEvaluation.breakdown,
-              claims: selectedEvaluation.claims || []
-            }} />
+
+            {/* loading */}
+            {loadingDetail && (
+              <div className="loading-overlay">
+                <div className="loading-spinner" />
+                <p className="loading-text">Loading report...</p>
+              </div>
+            )}
+
+            {/* full report */}
+            {selectedEvaluation && !loadingDetail && (
+              <div>
+                {/* query + response box */}
+                <div style={{
+                  background: 'var(--bg-card)',
+                  border: '1px solid var(--border-default)',
+                  borderRadius: 'var(--radius-lg)',
+                  padding: '1.25rem 1.5rem',
+                  marginBottom: '1.25rem'
+                }}>
+                  {/* query */}
+                  {selectedEvaluation.query && (
+                    <div style={{ marginBottom: '1rem' }}>
+                      <p style={{
+                        fontSize: '0.7rem',
+                        color: 'var(--text-muted)',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.08em',
+                        fontWeight: 600,
+                        marginBottom: '0.375rem'
+                      }}>
+                        Query
+                      </p>
+                      <p style={{
+                        color: 'var(--teal-primary)',
+                        fontSize: '0.95rem',
+                        fontWeight: 500
+                      }}>
+                        {selectedEvaluation.query}
+                      </p>
+                    </div>
+                  )}
+
+                  {/* divider */}
+                  {selectedEvaluation.query && (
+                    <div style={{
+                      height: '1px',
+                      background: 'var(--border-default)',
+                      marginBottom: '1rem'
+                    }} />
+                  )}
+
+                  {/* full llm response */}
+                  <div>
+                    <p style={{
+                      fontSize: '0.7rem',
+                      color: 'var(--text-muted)',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.08em',
+                      fontWeight: 600,
+                      marginBottom: '0.375rem'
+                    }}>
+                      LLM Response
+                    </p>
+                    <p style={{
+                      color: 'var(--text-secondary)',
+                      fontSize: '0.9rem',
+                      lineHeight: 1.7
+                    }}>
+                      {selectedEvaluation.llmResponse}
+                    </p>
+                  </div>
+                </div>
+
+                {/* result panel */}
+                <ResultPanel result={{
+                  score: selectedEvaluation.credibilityScore,
+                  riskLevel: selectedEvaluation.riskLevel,
+                  breakdown: selectedEvaluation.breakdown,
+                  claims: selectedEvaluation.claims || []
+                }} />
+              </div>
+            )}
           </div>
         )}
       </main>
