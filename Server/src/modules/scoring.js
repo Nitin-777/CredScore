@@ -9,16 +9,22 @@ function computeCredibilityScore(verifiedClaims) {
   const neutral = verifiedClaims
     .filter(c => c.verification.status === 'neutral').length;
 
-  const score = 100 * (
-    (0.6 * supported / total) -
-    (0.3 * contradicted / total) -
-    (0.1 * neutral / total)
-  );
+  // if everything is supported score should be 100
+  let score;
+  if (contradicted === 0 && neutral === 0) {
+    score = 100;
+  } else {
+    score = 100 * (
+      (0.6 * supported / total) -
+      (0.3 * contradicted / total) -
+      (0.1 * neutral / total)
+    );
+  }
 
   const finalScore = Math.max(0, Math.round(score));
 
-  const riskLevel = finalScore >= 70 ? 'Low' 
-    : finalScore >= 40 ? 'Medium' 
+  const riskLevel = finalScore >= 70 ? 'Low'
+    : finalScore >= 40 ? 'Medium'
     : 'High';
 
   return {
@@ -29,4 +35,3 @@ function computeCredibilityScore(verifiedClaims) {
 }
 
 module.exports = { computeCredibilityScore };
-

@@ -8,9 +8,7 @@ export default function History({ onSelectEvaluation }) {
   const [deletingId, setDeletingId] = useState(null);
   const [expandedId, setExpandedId] = useState(null);
 
-  useEffect(() => {
-    fetchHistory();
-  }, []);
+ 
 
   const fetchHistory = async () => {
     try {
@@ -24,6 +22,10 @@ export default function History({ onSelectEvaluation }) {
     setLoading(false);
   };
 
+   useEffect(() => {
+    fetchHistory();
+  }, []);
+
   const handleDelete = async (e, id) => {
     e.stopPropagation();
     setDeletingId(id);
@@ -33,7 +35,7 @@ export default function History({ onSelectEvaluation }) {
       );
       setHistory(prev => prev.filter(item => item._id !== id));
     } catch (err) {
-      console.error('Delete failed');
+      console.error('Delete failed',err);
     }
     setDeletingId(null);
   };
@@ -95,7 +97,7 @@ export default function History({ onSelectEvaluation }) {
     <div className="page-enter">
       <h2 className="page-title">Evaluation History</h2>
       <p className="page-subtitle">
-        Your last {history.length} evaluations
+        Your last {history.length} evaluations:
       </p>
 
       <div className="history-list">

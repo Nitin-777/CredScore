@@ -7,9 +7,8 @@ router.get('/', async (req, res) => {
     const evaluations = await Evaluation
       .find()
       .sort({ createdAt: -1 })
-      .limit(10)
-      .select('query credibilityScore riskLevel breakdown createdAt');
-    
+      .limit(20);
+      // no .select() - return everything including claims
     res.json(evaluations);
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch history' });
@@ -25,6 +24,15 @@ router.get('/:id', async (req, res) => {
     res.json(evaluation);
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch evaluation' });
+  }
+});
+
+router.delete('/:id', async (req, res) => {
+  try {
+    await Evaluation.findByIdAndDelete(req.params.id);
+    res.json({ message: 'Deleted successfully' });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to delete' });
   }
 });
 
